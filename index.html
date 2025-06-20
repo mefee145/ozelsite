@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kırmızı Kalp ve Müzik</title>
+  <style>
+    body {
+      background-color: #fff0f5;
+      margin: 0;
+      padding: 20px;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    canvas {
+      background-color: white;
+      border: 2px solid black;
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+  <h2>❤️ Kalp ve Müzik</h2>
+  <canvas id="heartCanvas" width="500" height="400"></canvas>
+  <button onclick="playMusic()">🎵 Müziği Başlat</button>
+  <audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+
+  <script>
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function drawBigHeart() {
+      ctx.save();
+      ctx.translate(250, 200);
+      ctx.beginPath();
+      ctx.fillStyle = "red";
+      for (let t = 0; t < Math.PI * 2; t += 0.01) {
+        let x = 16 * Math.pow(Math.sin(t), 3);
+        let y = - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        ctx.lineTo(x * 10, y * 10);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    class SmallHeart {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + 20;
+        this.size = Math.random() * 10 + 5;
+        this.speed = Math.random() * 1 + 0.5;
+        this.alpha = 1;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.size / 16, this.size / 16);
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 0, 0, ${this.alpha})`;
+        for (let t = 0; t < Math.PI * 2; t += 0.05) {
+          let x = 16 * Math.pow(Math.sin(t), 3);
+          let y = - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+          ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      update() {
+        this.y -= this.speed;
+        this.alpha -= 0.005;
+      }
+    }
+
+    let hearts = [];
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBigHeart();
+
+      if (Math.random() < 0.1) {
+        hearts.push(new SmallHeart());
+      }
+
+      hearts.forEach((heart, index) => {
+        heart.update();
+        heart.draw();
+        if (heart.alpha <= 0) {
+          hearts.splice(index, 1);
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    drawBigHeart();
+    animate();
+
+    function playMusic() {
+      const music = document.getElementById("bgMusic");
+      music.play();
+    }
+  </script>
+</body>
+</html>
